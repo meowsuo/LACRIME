@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execute SQL Query</title>
+    <script>
+        function updateCustomQuery() {
+            const predefinedQuery = document.getElementById("predefined_query").value;
+            const customQueryBox = document.getElementById("id_query");
+            customQueryBox.value = predefinedQuery; 
+        }
+    </script>
+</head>
+<body>
+    <h1>LA-CRIME Database</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="predefined_query">Choose a predefined query:</label>
+        <select name="predefined_query" id="predefined_query" onchange="updateCustomQuery()">
+            <option value="">--Select a query--</option>
+            {% for query_key, query_desc in predefined_queries.items %}
+                <option value="{{ query_key }}">{{ query_desc }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="custom_query">Or enter a custom query:</label>
+        {{ form.query }}
+        <br>
+        <button type="submit">Execute</button>
+    </form>
+
+    {% if result %}
+        <h2>Query Result</h2>
+        {% if result|stringformat:"s" == "Error executing query:" %}
+            <p style="color: red;">{{ result }}</p>
+        {% else %}
+            <table border="1">
+                <thead><tr>{% for col in columns %}<th>{{ col }}</th>{% endfor %}</tr></thead>
+                <tbody>{% for row in page_obj %}<tr>{% for value in row %}<td>{{ value }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+            </table>
+            <div>
+                {% if page_obj.has_previous %}
+                    <a href="?page=1&query={{ query|default:'' }}">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}&query={{ query|default:'' }}">Previous</a>
+                {% endif %}
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}&query={{ query|default:'' }}">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}&query={{ query|default:'' }}">Last &raquo;</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
