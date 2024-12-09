@@ -2,7 +2,7 @@ from django.db import models
 from django.core.exceptions import PermissionDenied
 
 class Areas(models.Model):
-    areaid = models.CharField(db_column='AreaID', primary_key=True)  # Field name made lowercase.
+    areaid = models.IntegerField(db_column='AreaID', primary_key=True)  # Field name made lowercase.
     areaname = models.CharField(db_column='AreaName', max_length=255)  # Field name made lowercase.
 
     class Meta:
